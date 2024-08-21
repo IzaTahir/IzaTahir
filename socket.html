@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NestJS WebSocket Client</title>
+</head>
+
+<body>
+
+    <h1>NestJS WebSocket Client</h1>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.js"></script>
+    <script>
+        const user_id = 2;
+        const to_id = 3;
+
+        // const socket = io('https://tutor-nest.qwertyexperts.com', {
+        const socket = io('localhost:4000/', {
+
+            transports: ['websocket'], // Specify the transport method
+            extraHeaders: {
+                'Access-Control-Allow-Origin': '*',
+                // Add any other required headers here
+            },
+            query: {
+                userId: user_id,
+            },
+        });
+
+        socket.on('connect', () => {
+            console.log('Connected to server with userId:', user_id);
+            socket.emit('connection', { user_id });
+
+        });
+
+        socket.on('disconnect', () => {
+            console.log('Disconnected from server');
+        });
+
+        // Handle custom events from the server
+        socket.on('newMessage', (data) => {
+            console.log('Received custom event:', data);
+        });
+
+        // Example: Send a message to the server
+        function test() {
+            const message = document.getElementById('messageInput').value;
+            console.log({ message })
+            // socket.emit('createMessage', { message, user_id: user_id, to_id: to_id });
+            socket.emit('createMessage', { message, user_id: user_id, to_id: to_id }, (ack) => {
+                console.log('Server acknowledgment:', ack);
+            });
+        };
+    </script>
+
+    <!-- Optional: Add some UI elements for interaction -->
+    <input type="text" id="messageInput" placeholder="Type a message">
+    <button id="sendButton" onclick="test()">Send Message</button>
+
+</body>
+
+</html>
